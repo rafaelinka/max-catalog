@@ -1,0 +1,167 @@
+[
+  {
+    "id": 1,
+    "title": "Сосиски \"Российские с сыром\"",
+    "brand": "Петродворские Колбасы",
+    "category": "meat",
+    "subcategory": "Сосиски",
+    "country": "Россия",
+    "weight": "1,3 кг",
+    "image": "/placeholder.jpg",
+    "url": "https://google.com"
+  },
+  {
+    "id": 2,
+    "title": "Сосиски из индейки 400 гр",
+    "brand": "Петродворские Колбасы",
+    "category": "meat",
+    "subcategory": "Сосиски",
+    "country": "Россия",
+    "weight": "0,400 кг",
+    "image": "/placeholder.jpg",
+    "url": "https://google.com"
+  },
+  {
+    "id": 3,
+    "title": "Сосиски из индейки",
+    "brand": "Петродворские Колбасы",
+    "category": "meat",
+    "subcategory": "Сосиски",
+    "country": "Россия",
+    "weight": "1,1 кг",
+    "image": "/placeholder.jpg",
+    "url": "https://google.com"
+  },
+  {
+    "id": 4,
+    "title": "Сосиски \"Ароматные с молоком\"",
+    "brand": "Петродворские Колбасы",
+    "category": "meat",
+    "subcategory": "Сосиски",
+    "country": "Россия",
+    "weight": "1,2 кг",
+    "image": "/placeholder.jpg",
+    "url": "https://google.com"
+  },
+  {
+    "id": 5,
+    "title": "Сосиски \"Молочные\" 400 гр",
+    "brand": "Петродворские Колбасы",
+    "category": "meat",
+    "subcategory": "Сосиски",
+    "country": "Россия",
+    "weight": "0,400 кг",
+    "image": "/placeholder.jpg",
+    "url": "https://google.com"
+  },
+  {
+    "id": 6,
+    "title": "Сосиски из мяса птицы \"Нежные\"",
+    "brand": "Петродворские Колбасы",
+    "category": "meat",
+    "subcategory": "Сосиски",
+    "country": "Россия",
+    "weight": "1 кг",
+    "image": "/placeholder.jpg",
+    "url": "https://google.com"
+  },
+  {
+    "id": 7,
+    "title": "Сосиски \"Молочные\"",
+    "brand": "Петродворские Колбасы",
+    "category": "meat",
+    "subcategory": "Сосиски",
+    "country": "Россия",
+    "weight": "1,3 кг",
+    "image": "/placeholder.jpg",
+    "url": "https://google.com"
+  },
+  {
+    "id": 8,
+    "title": "Сосиски \"Русские\"",
+    "brand": "Петродворские Колбасы",
+    "category": "meat",
+    "subcategory": "Сосиски",
+    "country": "Россия",
+    "weight": "1,2 кг",
+    "image": "/placeholder.jpg",
+    "url": "https://google.com"
+  },
+  {
+    "id": 9,
+    "title": "Сосиски \"Венские\"",
+    "brand": "Петродворские Колбасы",
+    "category": "meat",
+    "subcategory": "Сосиски",
+    "country": "Россия",
+    "weight": "1 кг",
+    "image": "/placeholder.jpg",
+    "url": "https://google.com"
+  },
+  {
+    "id": 10,
+    "title": "Сосиски \"Сливочные\"",
+    "brand": "Петродворские Колбасы",
+    "category": "meat",
+    "subcategory": "Сосиски",
+    "country": "Россия",
+    "weight": "1,3 кг",
+    "image": "/placeholder.jpg",
+    "url": "https://google.com"
+  },
+  {
+    "id": 11,
+    "title": "Сосиски Ветчинные",
+    "brand": "Петродворские Колбасы",
+    "category": "meat",
+    "subcategory": "Сосиски",
+    "country": "Россия",
+    "weight": "1,2 кг",
+    "image": "/placeholder.jpg",
+    "url": "https://google.com"
+  },
+  {
+    "id": 12,
+    "title": "Сардельки \"Свиные\"",
+    "brand": "Петродворские Колбасы",
+    "category": "meat",
+    "subcategory": "Сардельки",
+    "country": "Россия",
+    "weight": "1,4 кг",
+    "image": "/placeholder.jpg",
+    "url": "https://google.com"
+  },
+  {
+    "id": 13,
+    "title": "Сардельки \"Говяжьи\"",
+    "brand": "Петродворские Колбасы",
+    "category": "meat",
+    "subcategory": "Сардельки",
+    "country": "Россия",
+    "weight": "1,4 кг",
+    "image": "/placeholder.jpg",
+    "url": "https://google.com"
+  },
+  {
+    "id": 14,
+    "title": "Шпикачки \"Москворецкие\"",
+    "brand": "Петродворские Колбасы",
+    "category": "meat",
+    "subcategory": "Сардельки",
+    "country": "Россия",
+    "weight": "1,4 кг",
+    "image": "/placeholder.jpg",
+    "url": "https://google.com"
+  },
+  {
+    "id": 15,
+    "title": "Шпикачки \"Подмосковные\"",
+    "brand": "Петродворские Колбасы",
+    "category": "meat",
+    "subcategory": "Сардельки",
+    "country": "Россия",
+    "weight": "1,3 кг",
+    "image": "/placeholder.jpg",
+    "url": "https://google.com"
+  }
+]
