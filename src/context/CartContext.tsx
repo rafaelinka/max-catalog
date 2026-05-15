@@ -1,63 +1,61 @@
 "use client"
 
-import {
-  createContext,
-  useContext,
-  useEffect,
-  useState,
-  ReactNode,
-} from "react"
+import { createContext, useContext, useState, ReactNode } from "react"
 
-type CartItem = {
+/**
+ * Один товар в корзине
+ */
+export type CartItem = {
   id: number
   title: string
-  brand?: string
-  weight?: number
-  country?: string
+  brand: string
+  category: string
+  subcategory: string
+  country: string
+  weight: string
+  image: string
+  url: string
   qty: number
 }
 
+/**
+ * Контекст корзины
+ */
 type CartContextType = {
   request: CartItem[]
-  addItem: (item: CartItem, qty?: number) => void
+  addItem: (product: Omit<CartItem, "qty">, qty?: number) => void
   setQty: (id: number, qty: number) => void
+  removeItem: (id: number) => void
   clear: () => void
 }
 
 const CartContext = createContext<CartContextType | null>(null)
 
-const KEY = "request"
-
 export function CartProvider({ children }: { children: ReactNode }) {
   const [request, setRequest] = useState<CartItem[]>([])
 
-  // LOAD
-  useEffect(() => {
-    const saved = localStorage.getItem(KEY)
-    if (saved) setRequest(JSON.parse(saved))
-  }, [])
-
-  // SAVE
-  useEffect(() => {
-    localStorage.setItem(KEY, JSON.stringify(request))
-  }, [request])
-
-  const addItem = (item: CartItem, qty = 1) => {
+  /**
+   * ДОБАВИТЬ ТОВАР
+   */
+  const addItem = (product: Omit<CartItem, "qty">, qty = 1) => {
     setRequest((prev) => {
-      const exists = prev.find((p) => p.id === item.id)
+      const existing = prev.find((p) => p.id === product.id)
 
-      if (!exists) {
-        return [...prev, { ...item, qty }]
+      if (existing) {
+        return prev.map((p) =>
+          p.id === product.id
+            ? { ...p, qty: p.qty + qty }
+            : p
+        )
       }
 
-      return prev.map((p) =>
-        p.id === item.id
-          ? { ...p, qty: p.qty + qty }
-          : p
-      )
+      return [...prev, { ...product, qty }]
     })
   }
 
+  /**
+   * ИЗМЕНИТЬ КОЛИЧЕСТВО
+   */
   const setQty = (id: number, qty: number) => {
     setRequest((prev) =>
       prev
@@ -66,18 +64,36 @@ export function CartProvider({ children }: { children: ReactNode }) {
     )
   }
 
-  const clear = () => setRequest([])
+  /**
+   * УДАЛИТЬ ТОВАР
+   */
+  const removeItem = (id: number) => {
+    setRequest((prev) => prev.filter((p) => p.id !== id))
+  }
+
+  /**
+   * ОЧИСТИТЬ КОРЗИНУ
+   */
+  const clear = () => {
+    setRequest([])
+  }
 
   return (
     <CartContext.Provider
-      value={{ request, addItem, setQty, clear }}
+      value={{
+        request,
+        addItem,
+        setQty,
+        removeItem,
+        clear,
+      }}
     >
       {children}
     </CartContext.Provider>
   )
 }
 
-export const useCart = () => {
+export function useCart() {
   const ctx = useContext(CartContext)
   if (!ctx) throw new Error("useCart must be used inside CartProvider")
   return ctx
