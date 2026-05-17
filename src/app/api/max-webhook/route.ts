@@ -1,35 +1,57 @@
 import { NextResponse } from "next/server"
+import { buildOrderMessage } from "@/lib/buildOrderMessage"
+import { sendToOperator } from "@/lib/sendToOperator"
 
 export async function POST(req: Request) {
   try {
+    console.log("📥 ORDER REQUEST START")
+
     const body = await req.json()
 
-    console.log("📩 MAX WEBHOOK EVENT:", JSON.stringify(body, null, 2))
+    console.log("📦 BODY:", body)
 
-    // ====== Достаём базовые данные пользователя ======
-    const chatId = body?.chat?.id
-    const user = body?.user
-    const message = body?.message?.text
+    const rawMessage = buildOrderMessage(body)
 
-    // ====== пример логики ======
-    if (!chatId) {
-      return NextResponse.json({ ok: false, error: "no chatId" }, { status: 400 })
+    console.log("🧠 RAW MESSAGE:", rawMessage)
+
+    const message =
+      typeof rawMessage === "string"
+        ? rawMessage
+        : JSON.stringify(rawMessage, null, 2)
+
+    console.log("📨 FINAL MESSAGE:", message)
+
+    const result = await sendToOperator(message)
+
+    console.log("📤 SEND RESULT:", result)
+
+    if (!result.ok) {
+      return NextResponse.json(
+        {
+          error: "MAX API ERROR",
+          details: result.data,
+        },
+        {
+          status: 500,
+        }
+      )
     }
 
-    console.log("👤 CHAT ID:", chatId)
-    console.log("👤 USER:", user)
-    console.log("💬 MESSAGE:", message)
-
-    // ====== тут позже подключим CRM / заявки ======
-    // например: сохранить в базу
-
-    return NextResponse.json({ ok: true })
-  } catch (e) {
-    console.error("WEBHOOK ERROR:", e)
+    return NextResponse.json({
+      ok: true,
+    })
+  } catch (error: any) {
+    console.error("❌ FULL ORDER ERROR:")
+    console.error(error)
 
     return NextResponse.json(
-      { ok: false, error: "invalid request" },
-      { status: 500 }
+      {
+        error: "internal error",
+        details: String(error),
+      },
+      {
+        status: 500,
+      }
     )
   }
 }
