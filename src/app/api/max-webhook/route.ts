@@ -7,7 +7,7 @@ export async function POST(req: Request) {
 
     console.log("📦 ORDER BODY:", body)
 
-    // 🔥 гарантируем массив
+    // 🔥 всегда приводим к массиву
     const items = Array.isArray(body.items) ? body.items : []
 
     if (items.length === 0) {
@@ -17,18 +17,32 @@ export async function POST(req: Request) {
       )
     }
 
-    // 🧾 формируем текст
+    // 🧾 собираем текст заявки
     const message = items
-      .map(
-        (i: any, idx: number) =>
-          `${idx + 1}. ${i.title ?? i.name} × ${i.qty ?? 1}`
-      )
+      .map((i: any, idx: number) => {
+        return `${idx + 1}. ${i.title ?? i.name} × ${i.qty ?? 1}`
+      })
       .join("\n")
 
+    console.log("📨 MESSAGE:", message)
+
+    // 🟢 chat_id берём из env
     const chatId = Number(process.env.MAX_OPERATOR_CHAT_ID)
 
+    if (!chatId) {
+      console.error("❌ MAX_OPERATOR_CHAT_ID is missing")
+      return NextResponse.json(
+        { error: "missing chat id" },
+        { status: 500 }
+      )
+    }
+
+    // 🚀 отправка в MAX
     const result = await sendToOperator(chatId, message)
 
+    console.log("📤 MAX RESULT:", result)
+
+    // ❌ если MAX не принял
     if (!result.ok) {
       return NextResponse.json(
         {
@@ -39,6 +53,7 @@ export async function POST(req: Request) {
       )
     }
 
+    // ✅ успех
     return NextResponse.json({ ok: true })
   } catch (error) {
     console.error("❌ ORDER ERROR:", error)
