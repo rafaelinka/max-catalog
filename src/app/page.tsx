@@ -1,70 +1,92 @@
 import Link from "next/link"
-import { catalog } from "@/data/catalog"
+
+const tiles = [
+  {
+    title: "Каталог",
+    icon: "📦",
+    href: "/category/meat",
+    desc: "Продукция компании",
+  },
+  {
+    title: "Контакты",
+    icon: "📞",
+    href: "/contacts",
+    desc: "Связаться с нами",
+  },
+  {
+    title: "Доставка",
+    icon: "🚚",
+    href: "/delivery",
+    desc: "Условия поставки",
+  },
+  {
+    title: "Новинки",
+    icon: "⭐",
+    href: "/new",
+    desc: "Новые товары",
+  },
+]
 
 export default function HomePage() {
   return (
-    <main className="min-h-screen bg-[#f3f5f7] p-4">
+    <main className="min-h-screen bg-[#f4f4f5]">
 
-      {/* HEADER */}
-      <div className="max-w-md mx-auto mb-6">
+      {/* HERO */}
+      <section className="px-5 pt-10 pb-6">
+        <div className="max-w-md mx-auto">
 
-        <div
-          className="rounded-lg px-5 py-5 text-white"
-          style={{
-            background:
-              "linear-gradient(0.5turn, rgba(20,30,48,1) 0%, rgba(40,65,111,1) 100%)",
-          }}
-        >
-          <h1 className="text-2xl font-semibold tracking-tight">
-            Каталог продукции
+          <h1 className="text-3xl font-semibold tracking-tight text-neutral-900">
+            MAX Catalog
           </h1>
 
-          <p className="text-sm text-white/70 mt-1">
-            Оптовый ассортимент продукции
+          <p className="mt-2 text-sm text-neutral-500 leading-relaxed">
+            B2B каталог продукции для оформления заявок
+            и работы с операторами.
           </p>
+
         </div>
+      </section>
 
-      </div>
+      {/* TILES */}
+      <section className="px-4 pb-10">
+        <div className="max-w-md mx-auto grid grid-cols-2 gap-3">
 
-      {/* CATEGORY GRID */}
-      <div className="max-w-md mx-auto grid grid-cols-2 gap-3">
+          {tiles.map((tile) => (
+            <Link
+              key={tile.title}
+              href={tile.href}
+              className="
+                bg-white
+                rounded-2xl
+                border
+                border-neutral-200
+                p-4
+                min-h-[140px]
+                flex
+                flex-col
+                justify-between
+                active:scale-[0.98]
+                transition
+              "
+            >
+              <div className="text-3xl">
+                {tile.icon}
+              </div>
 
-        {catalog.map((cat) => (
-          <Link
-            key={cat.id}
-            href={`/category/${cat.id}`}
-            className="
-              bg-white
-              border
-              border-gray-200
-              rounded-lg
-              p-4
-              min-h-[140px]
-              flex
-              flex-col
-              justify-between
-              transition
-              hover:border-gray-300
-              hover:shadow-sm
-            "
-          >
+              <div>
+                <h2 className="font-medium text-neutral-900">
+                  {tile.title}
+                </h2>
 
-            {/* ICON */}
-            <div className="text-4xl">
-              {cat.icon}
-            </div>
+                <p className="mt-1 text-xs text-neutral-500">
+                  {tile.desc}
+                </p>
+              </div>
+            </Link>
+          ))}
 
-            {/* TITLE */}
-            <div>
-              <h2 className="text-sm font-semibold text-gray-900 leading-tight">
-                {cat.title}
-              </h2>
-            </div>
-
-          </Link>
-        ))}
-
-      </div>
+        </div>
+      </section>
 
     </main>
   )

@@ -1,140 +1,283 @@
 "use client"
 
-import { useMemo, useState, useEffect } from "react"
-import Image from "next/image"
+import Link from "next/link"
+import { useMemo, useState, use } from "react"
+
 import { products } from "@/data/products"
 import { useCart } from "@/context/CartContext"
-import { categoryNames } from "@/data/categories"
+
+const categories = [
+  {
+    id: "meat",
+    title: "Колбасы",
+    icon: "🥩",
+  },
+  {
+    id: "cheese",
+    title: "Сыры",
+    icon: "🧀",
+  },
+  {
+    id: "milk",
+    title: "Молочка",
+    icon: "🥛",
+  },
+]
 
 export default function CategoryPage({
   params,
 }: {
   params: Promise<{ id: string }>
 }) {
-  const [id, setId] = useState("")
+  const { id } = use(params)
+
+  const {
+    request,
+    addItem,
+    open, // 🔥 важно
+  } = useCart()
+
   const [search, setSearch] = useState("")
-  const [subcategory, setSubcategory] = useState("all")
+  const [activeSubcategory, setActiveSubcategory] = useState("all")
 
-  const { request, addItem, setQty } = useCart()
-
-  useEffect(() => {
-    params.then((p) => setId(p.id))
-  }, [params])
-
-  const categoryProducts = useMemo(() => {
-    if (!products) return []
-    return products.filter((p) => p.category === id)
+  /* =========================
+     SUBCATEGORIES
+  ========================= */
+  const subcategories = useMemo(() => {
+    const list = products.filter((p) => p.category === id)
+    return Array.from(new Set(list.map((p) => p.subcategory)))
   }, [id])
 
-  const subcategories = useMemo(() => {
-    const set = new Set(categoryProducts.map((p) => p.subcategory))
-    return ["all", ...Array.from(set)]
-  }, [categoryProducts])
-
+  /* =========================
+     FILTER PRODUCTS
+  ========================= */
   const filtered = useMemo(() => {
-    return categoryProducts.filter((p) => {
-      const q = search.toLowerCase()
+    return products.filter((p) => {
+      const matchCategory = p.category === id
 
-      return (
-        (subcategory === "all" || p.subcategory === subcategory) &&
-        (p.title.toLowerCase().includes(q) ||
-          (p.brand || "").toLowerCase().includes(q))
-      )
+      const matchSearch =
+        p.title.toLowerCase().includes(search.toLowerCase()) ||
+        p.brand.toLowerCase().includes(search.toLowerCase())
+
+      const matchSub =
+        activeSubcategory === "all"
+          ? true
+          : p.subcategory === activeSubcategory
+
+      return matchCategory && matchSearch && matchSub
     })
-  }, [categoryProducts, search, subcategory])
+  }, [id, search, activeSubcategory])
 
-  const getQty = (id: number) =>
-    request.find((p) => p.id === id)?.qty || 0
+  const totalQty = request.reduce((a, i) => a + i.qty, 0)
 
   return (
-    <main className="min-h-screen bg-gray-100">
+    <main className="min-h-screen bg-[var(--bg)]">
 
-      {/* TOP */}
-      <div className="sticky top-0 z-40 p-3 bg-gradient-to-r from-slate-900 to-slate-700 text-white">
-        <h1 className="text-lg font-semibold">
-          {categoryNames[id]}
-        </h1>
+      {/* ================= TOPBAR ================= */}
+      <section className="sticky top-0 z-50 bg-[var(--bg)] border-b border-[var(--border)]">
 
-        <p className="text-xs opacity-70">
-          Товаров: {filtered.length} | В заявке:{" "}
-          {request.reduce((s, p) => s + p.qty, 0)}
-        </p>
+        <div className="max-w-md mx-auto px-4 pt-4 pb-4">
 
-        <input
-          className="mt-2 w-full px-3 py-2 rounded text-black text-sm"
-          placeholder="Поиск..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
-      </div>
+          {/* HEADER */}
+          <div className="flex items-center justify-between">
 
-      {/* PRODUCTS */}
-      <div className="grid grid-cols-2 gap-3 p-3 max-w-md mx-auto">
+            <Link
+              href="/"
+              className="text-[18px] font-semibold text-[var(--primary)]"
+            >
+              Петров Продукт
+            </Link>
 
-        {filtered.map((p) => (
-          <div
-            key={p.id}
-            className="bg-white rounded-xl overflow-hidden border flex flex-col"
-          >
+            {/* REQUEST BUTTON */}
+            <button
+              onClick={open}
+              className="
+                relative
+                w-11 h-11
+                rounded-xl
+                bg-[var(--surface)]
+                border border-[var(--border)]
+                flex items-center justify-center
+              "
+            >
+              <span className="text-lg text-[var(--primary)]">
+                📦
+              </span>
 
-            <div className="relative h-32 bg-gray-100">
-              <Image
-                src={p.image}
-                alt={p.title}
-                fill
-                className="object-contain p-2"
-              />
-            </div>
+              {totalQty > 0 && (
+                <div className="
+                  absolute -top-1 -right-1
+                  min-w-[18px] h-5 px-1
+                  rounded-full
+                  bg-[var(--accent)]
+                  text-white text-[10px]
+                  flex items-center justify-center
+                ">
+                  {totalQty}
+                </div>
+              )}
+            </button>
 
-            <div className="p-2 flex flex-col flex-1">
+          </div>
 
-              <h2 className="text-sm font-medium line-clamp-2">
-                {p.title}
-              </h2>
+          {/* CATEGORIES */}
+          <div className="mt-4 flex gap-2 overflow-x-auto scrollbar-none">
 
-              <p className="text-xs text-gray-500">
-                {p.brand}
-              </p>
+            {categories.map((cat) => {
+              const active = cat.id === id
 
-              <p className="text-[11px] text-gray-400">
-                {p.weight} • {p.country}
-              </p>
+              return (
+                <Link
+                  key={cat.id}
+                  href={`/category/${cat.id}`}
+                  className={`
+                    flex items-center gap-2
+                    px-4 h-11
+                    rounded-xl
+                    border
+                    shrink-0
 
-              {/* CART CONTROLS */}
-              <div className="mt-auto flex items-center justify-between border rounded-lg px-2 py-1">
-
-                <button
-                  onClick={() =>
-                    setQty(p.id, Math.max(getQty(p.id) - 1, 0))
-                  }
+                    ${
+                      active
+                        ? "bg-[var(--primary)] text-white border-[var(--primary)]"
+                        : "bg-[var(--surface)] text-[var(--text)] border-[var(--border)]"
+                    }
+                  `}
                 >
-                  -
-                </button>
+                  <span>{cat.icon}</span>
+                  <span className="text-sm font-medium">
+                    {cat.title}
+                  </span>
+                </Link>
+              )
+            })}
 
-                <input
-                  className="w-10 text-center text-sm outline-none"
-                  value={getQty(p.id)}
-                  onChange={(e) =>
-                    setQty(p.id, Number(e.target.value))
+          </div>
+
+          {/* SEARCH */}
+          <div className="mt-4">
+
+            <input
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Поиск товаров..."
+              className="
+                w-full h-12
+                rounded-xl
+                bg-[var(--surface)]
+                border border-[var(--border)]
+                px-4 text-sm
+                outline-none
+                text-[var(--text)]
+              "
+            />
+
+          </div>
+
+          {/* SUBCATEGORIES */}
+          <div className="mt-4 flex gap-2 overflow-x-auto scrollbar-none">
+
+            <button
+              onClick={() => setActiveSubcategory("all")}
+              className={`
+                px-4 h-9 rounded-full text-sm border shrink-0
+
+                ${
+                  activeSubcategory === "all"
+                    ? "bg-[var(--primary)] text-white border-[var(--primary)]"
+                    : "bg-[var(--surface)] text-[var(--text)] border-[var(--border)]"
+                }
+              `}
+            >
+              Все
+            </button>
+
+            {subcategories.map((sub) => (
+              <button
+                key={sub}
+                onClick={() => setActiveSubcategory(sub)}
+                className={`
+                  px-4 h-9 rounded-full text-sm border shrink-0
+
+                  ${
+                    activeSubcategory === sub
+                      ? "bg-[var(--primary)] text-white border-[var(--primary)]"
+                      : "bg-[var(--surface)] text-[var(--text)] border-[var(--border)]"
                   }
+                `}
+              >
+                {sub}
+              </button>
+            ))}
+
+          </div>
+
+        </div>
+
+      </section>
+
+      {/* ================= PRODUCTS ================= */}
+      <section className="px-4 py-4">
+
+        <div className="max-w-md mx-auto grid grid-cols-2 gap-3">
+
+          {filtered.map((p) => (
+            <div
+              key={p.id}
+              className="
+                bg-[var(--surface)]
+                border border-[var(--border)]
+                rounded-2xl
+                overflow-hidden
+                flex flex-col
+              "
+            >
+
+              <div className="aspect-square bg-gray-100">
+                <img
+                  src={p.image}
+                  className="w-full h-full object-cover"
                 />
+              </div>
 
-                {/* 🔥 FIX HERE */}
+              <div className="p-3 flex flex-col flex-1">
+
+                <h3 className="text-sm font-medium text-[var(--text)]">
+                  {p.title}
+                </h3>
+
+                <p className="text-xs text-[var(--text-secondary)] mt-1">
+                  {p.brand}
+                </p>
+
+                <div className="flex justify-between text-xs mt-2 text-[var(--text-secondary)]">
+                  <span>{p.country}</span>
+                  <span>{p.weight}</span>
+                </div>
+
                 <button
-                  onClick={() =>
-                    addItem(p, 1)   // ← ВАЖНО: qty теперь передаётся
-                  }
+                  onClick={() => addItem(p, 1)}
+                  className="
+                    mt-auto
+                    h-10
+                    rounded-xl
+                    bg-[var(--primary)]
+                    text-white
+                    text-sm font-medium
+                    mt-3
+                  "
                 >
-                  +
+                  Добавить в заявку
                 </button>
 
               </div>
 
             </div>
-          </div>
-        ))}
+          ))}
 
-      </div>
+        </div>
+
+      </section>
 
     </main>
   )

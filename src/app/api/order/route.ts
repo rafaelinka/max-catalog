@@ -1,14 +1,36 @@
 import { NextResponse } from "next/server"
+import { OPERATOR_PHONE } from "@/config/operator"
+import { buildOrderMessage } from "@/lib/buildOrderMessage"
 
 export async function POST(req: Request) {
-  const body = await req.json()
+  try {
+    const { request } = await req.json()
 
-  console.log("📦 NEW ORDER:", body)
+    if (!request?.length) {
+      return NextResponse.json(
+        { error: "empty request" },
+        { status: 400 }
+      )
+    }
 
-  // 👉 сюда позже вставим MAX API
-  // await fetch("MAX_WEBHOOK_URL", {...})
+    const { message, orderId } =
+      buildOrderMessage(request)
 
-  return NextResponse.json({
-    success: true,
-  })
+    // 🔥 лог (пока вместо MAX)
+    console.log("==============")
+    console.log("ORDER:", orderId)
+    console.log("TO:", OPERATOR_PHONE)
+    console.log(message)
+    console.log("==============")
+
+    return NextResponse.json({
+      success: true,
+      orderId,
+    })
+  } catch (e) {
+    return NextResponse.json(
+      { error: "server error" },
+      { status: 500 }
+    )
+  }
 }

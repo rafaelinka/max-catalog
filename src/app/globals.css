@@ -1,26 +1,81 @@
 @import "tailwindcss";
 
+/* =========================
+   PETEROV PRODUCT DESIGN SYSTEM
+   B2B ERP UI
+========================= */
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* BRAND COLORS */
+  --primary: #0B1F3A;      /* Deep Navy */
+  --secondary: #2C5D7A;    /* Steel Blue */
+  --accent: #D64545;       /* Action Red */
+
+  /* SURFACES */
+  --bg: #F5F7FA;           /* App background */
+  --surface: #FFFFFF;      /* Cards */
+  --border: #E2E8F0;       /* Borders */
+
+  /* TEXT */
+  --text: #1A1A1A;
+  --text-secondary: #6B7280;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+/* ❌ УБИРАЕМ DARK MODE (осознанно) */
+/* B2B ERP не должен прыгать между темами */
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
+/* =========================
+   BASE STYLES
+========================= */
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+/* =========================
+   TYPOGRAPHY RULES
+========================= */
+
+h1 {
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+h2 {
+  font-size: 18px;
+  font-weight: 500;
+  color: var(--text);
+}
+
+p {
+  color: var(--text-secondary);
+}
+
+/* =========================
+   UI HELPERS
+========================= */
+
+/* hide scrollbar for chips */
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+
+.scrollbar-none {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* soft card shadow (ERP style, very subtle) */
+.card-shadow {
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+/* button reset helper */
+button {
+  -webkit-tap-highlight-color: transparent;
 }

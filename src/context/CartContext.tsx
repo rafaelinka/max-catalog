@@ -1,10 +1,7 @@
 "use client"
 
-import { createContext, useContext, useState, ReactNode } from "react"
+import { createContext, useContext, useState } from "react"
 
-/**
- * Один товар в корзине
- */
 export type CartItem = {
   id: number
   title: string
@@ -18,74 +15,74 @@ export type CartItem = {
   qty: number
 }
 
-/**
- * Контекст корзины
- */
 type CartContextType = {
   request: CartItem[]
-  addItem: (product: Omit<CartItem, "qty">, qty?: number) => void
-  setQty: (id: number, qty: number) => void
+  addItem: (item: Omit<CartItem, "qty">, qty?: number) => void
   removeItem: (id: number) => void
   clear: () => void
+
+  // 🔥 NEW: drawer control
+  isOpen: boolean
+  open: () => void
+  close: () => void
 }
 
-const CartContext = createContext<CartContextType | null>(null)
+const CartContext = createContext<CartContextType | undefined>(undefined)
 
-export function CartProvider({ children }: { children: ReactNode }) {
+export function CartProvider({
+  children,
+}: {
+  children: React.ReactNode
+}) {
   const [request, setRequest] = useState<CartItem[]>([])
+  const [isOpen, setIsOpen] = useState(false)
 
-  /**
-   * ДОБАВИТЬ ТОВАР
-   */
-  const addItem = (product: Omit<CartItem, "qty">, qty = 1) => {
+  /* =========================
+     ADD ITEM
+  ========================= */
+  const addItem = (
+    item: Omit<CartItem, "qty">,
+    qty: number = 1
+  ) => {
     setRequest((prev) => {
-      const existing = prev.find((p) => p.id === product.id)
+      const existing = prev.find((p) => p.id === item.id)
 
       if (existing) {
         return prev.map((p) =>
-          p.id === product.id
+          p.id === item.id
             ? { ...p, qty: p.qty + qty }
             : p
         )
       }
 
-      return [...prev, { ...product, qty }]
+      return [...prev, { ...item, qty }]
     })
   }
 
-  /**
-   * ИЗМЕНИТЬ КОЛИЧЕСТВО
-   */
-  const setQty = (id: number, qty: number) => {
+  const removeItem = (id: number) => {
     setRequest((prev) =>
-      prev
-        .map((p) => (p.id === id ? { ...p, qty } : p))
-        .filter((p) => p.qty > 0)
+      prev.filter((item) => item.id !== id)
     )
   }
 
-  /**
-   * УДАЛИТЬ ТОВАР
-   */
-  const removeItem = (id: number) => {
-    setRequest((prev) => prev.filter((p) => p.id !== id))
-  }
+  const clear = () => setRequest([])
 
-  /**
-   * ОЧИСТИТЬ КОРЗИНУ
-   */
-  const clear = () => {
-    setRequest([])
-  }
+  /* =========================
+     DRAWER CONTROL
+  ========================= */
+  const open = () => setIsOpen(true)
+  const close = () => setIsOpen(false)
 
   return (
     <CartContext.Provider
       value={{
         request,
         addItem,
-        setQty,
         removeItem,
         clear,
+        isOpen,
+        open,
+        close,
       }}
     >
       {children}
@@ -95,6 +92,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
 export function useCart() {
   const ctx = useContext(CartContext)
-  if (!ctx) throw new Error("useCart must be used inside CartProvider")
+  if (!ctx)
+    throw new Error("useCart must be used inside CartProvider")
   return ctx
 }
