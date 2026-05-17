@@ -1,19 +1,35 @@
 export async function sendToOperator(text: string) {
-  const res = await fetch("https://platform-api.max.ru/messages", {
-    method: "POST",
-    headers: {
-      Authorization: process.env.MAX_BOT_TOKEN as string,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      chat_id: 429341005, // твой оператор
-      text: text,
-    }),
-  })
+  try {
+    console.log("📨 SENDING TO MAX:", text)
 
-  const data = await res.json()
+    const res = await fetch("https://platform-api.max.ru/messages", {
+      method: "POST",
+      headers: {
+        Authorization: process.env.MAX_BOT_TOKEN as string,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        chat_id: 429341005,
+        text,
+      }),
+    })
 
-  console.log("📤 MAX SEND RESULT:", data)
+    const responseText = await res.text()
 
-  return data
+    console.log("📤 MAX STATUS:", res.status)
+    console.log("📤 MAX RESPONSE:", responseText)
+
+    return {
+      ok: res.ok,
+      status: res.status,
+      data: responseText,
+    }
+  } catch (error) {
+    console.error("❌ MAX SEND ERROR:", error)
+
+    return {
+      ok: false,
+      error,
+    }
+  }
 }
