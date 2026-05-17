@@ -17,14 +17,10 @@ type CartContextType = {
   items: CartItem[]
   addItem: (item: CartItem) => void
   removeItem: (id: string) => void
-  clear: () => void
-  open: () => void
-  close: () => void
-  isOpen: boolean
+  clearCart: () => void
 }
 
-const CartContext =
-  createContext<CartContextType | null>(null)
+const CartContext = createContext<CartContextType | null>(null)
 
 export function CartProvider({
   children,
@@ -32,13 +28,10 @@ export function CartProvider({
   children: ReactNode
 }) {
   const [items, setItems] = useState<CartItem[]>([])
-  const [isOpen, setIsOpen] = useState(false)
 
   function addItem(item: CartItem) {
     setItems((prev) => {
-      const existing = prev.find(
-        (i) => i.id === item.id
-      )
+      const existing = prev.find((i) => i.id === item.id)
 
       if (existing) {
         return prev.map((i) =>
@@ -58,7 +51,7 @@ export function CartProvider({
     )
   }
 
-  function clear() {
+  function clearCart() {
     setItems([])
   }
 
@@ -68,10 +61,7 @@ export function CartProvider({
         items,
         addItem,
         removeItem,
-        clear,
-        open: () => setIsOpen(true),
-        close: () => setIsOpen(false),
-        isOpen,
+        clearCart,
       }}
     >
       {children}
@@ -81,7 +71,10 @@ export function CartProvider({
 
 export function useCart() {
   const ctx = useContext(CartContext)
-  if (!ctx)
-    throw new Error("CartProvider missing")
+
+  if (!ctx) {
+    throw new Error("useCart must be used inside CartProvider")
+  }
+
   return ctx
 }

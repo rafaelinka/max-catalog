@@ -1,40 +1,48 @@
 import { NextResponse } from "next/server"
-import { buildOrderMessage } from "@/lib/buildOrderMessage"
 import { sendToOperator } from "@/lib/sendToOperator"
 
 export async function POST(req: Request) {
   try {
     const body = await req.json()
 
-    const items = Array.isArray(body.items)
-      ? body.items
-      : []
+    console.log("📦 ORDER BODY:", body)
 
-    const safeBody = {
-      ...body,
-      items,
+    // 🔥 гарантируем массив
+    const items = Array.isArray(body.items) ? body.items : []
+
+    if (items.length === 0) {
+      return NextResponse.json(
+        { error: "empty order" },
+        { status: 400 }
+      )
     }
 
-    const rawMessage =
-      buildOrderMessage(safeBody)
+    // 🧾 формируем текст
+    const message = items
+      .map(
+        (i: any, idx: number) =>
+          `${idx + 1}. ${i.title ?? i.name} × ${i.qty ?? 1}`
+      )
+      .join("\n")
 
-    const message =
-      typeof rawMessage === "string"
-        ? rawMessage
-        : JSON.stringify(rawMessage)
+    const chatId = Number(process.env.MAX_OPERATOR_CHAT_ID)
 
-    const result =
-      await sendToOperator(message)
+    const result = await sendToOperator(chatId, message)
 
     if (!result.ok) {
       return NextResponse.json(
-        { error: "operator failed" },
+        {
+          error: "MAX failed",
+          details: result.data,
+        },
         { status: 500 }
       )
     }
 
     return NextResponse.json({ ok: true })
-  } catch (e) {
+  } catch (error) {
+    console.error("❌ ORDER ERROR:", error)
+
     return NextResponse.json(
       { error: "internal error" },
       { status: 500 }
