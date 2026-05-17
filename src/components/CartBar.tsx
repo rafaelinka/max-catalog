@@ -1,9 +1,11 @@
 "use client"
 
+import { useState } from "react"
 import { useCart } from "@/context/CartContext"
 
 export default function CartBar() {
   const { request, clear } = useCart()
+  const [loading, setLoading] = useState(false)
 
   const totalQty = request.reduce((s, p) => s + p.qty, 0)
 
@@ -11,17 +13,17 @@ export default function CartBar() {
 
   const buildMessage = () => {
     return request
-      .map((p, i) => {
-        return `${i + 1}. ${p.title} × ${p.qty}`
-      })
+      .map((p, i) => `${i + 1}. ${p.name} × ${p.qty}`)
       .join("\n")
   }
 
   const sendOrder = async () => {
+    setLoading(true)
+
     const message = buildMessage()
 
     try {
-      await fetch("/api/order", {
+      const res = await fetch("/api/order", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -33,9 +35,17 @@ export default function CartBar() {
         }),
       })
 
-      alert("Заявка отправлена в MAX")
+      if (!res.ok) {
+        throw new Error("Failed")
+      }
+
+      clear()
+
+      alert("Заявка отправлена оператору")
     } catch (e) {
       alert("Ошибка отправки заявки")
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -66,13 +76,15 @@ export default function CartBar() {
 
           <button
             onClick={sendOrder}
+            disabled={loading}
             className="px-4 py-2 text-xs text-white rounded-lg"
             style={{
               background:
                 "linear-gradient(0.5turn, rgba(20,30,48,1), rgba(40,65,111,1))",
+              opacity: loading ? 0.6 : 1,
             }}
           >
-            Отправить
+            {loading ? "Отправка..." : "Отправить"}
           </button>
 
         </div>

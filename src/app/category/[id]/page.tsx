@@ -19,7 +19,6 @@ export default function CategoryPage({
 }) {
   const { id } = use(params)
 
-  // ❗ ТОЛЬКО addItem (остальное убрали из контекста)
   const { addItem, items } = useCart()
 
   const [search, setSearch] = useState("")
@@ -60,7 +59,6 @@ export default function CategoryPage({
 
       {/* ================= TOPBAR ================= */}
       <section className="sticky top-0 z-50 bg-[var(--bg)] border-b border-[var(--border)]">
-
         <div className="max-w-md mx-auto px-4 pt-4 pb-4">
 
           {/* HEADER */}
@@ -73,7 +71,7 @@ export default function CategoryPage({
               Петров Продукт
             </Link>
 
-            {/* CART BUTTON (drawer теперь в AppShell) */}
+            {/* CART ICON (open drawer handled in AppShell) */}
             <div className="relative w-11 h-11 rounded-xl bg-[var(--surface)] border border-[var(--border)] flex items-center justify-center">
               <span className="text-lg">📦</span>
 
@@ -156,7 +154,6 @@ export default function CategoryPage({
           </div>
 
         </div>
-
       </section>
 
       {/* ================= PRODUCTS ================= */}
@@ -192,10 +189,11 @@ export default function CategoryPage({
                   <span>{p.weight}</span>
                 </div>
 
+                {/* ADD BUTTON */}
                 <button
                   onClick={() =>
                     addItem({
-                      id: p.id,
+                      id: String(p.id),
                       name: p.title,
                       qty: 1,
                     })
