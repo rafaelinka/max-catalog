@@ -31,7 +31,6 @@ export default function CategoryPage({
 }) {
   const { id } = use(params)
 
-  // ✅ только items + addItem
   const { items, addItem } = useCart()
 
   const [search, setSearch] = useState("")
@@ -43,7 +42,9 @@ export default function CategoryPage({
   ========================= */
 
   const subcategories = useMemo(() => {
-    const list = products.filter((p) => p.category === id)
+    const list = products.filter(
+      (p) => p.category === id
+    )
 
     return Array.from(
       new Set(list.map((p) => p.subcategory))
@@ -104,7 +105,7 @@ export default function CategoryPage({
               Петров Продукт
             </Link>
 
-            {/* CART ICON */}
+            {/* CART */}
 
             <div
               className="
@@ -293,7 +294,7 @@ export default function CategoryPage({
                   onClick={() =>
                     addItem({
                       id: p.id,
-                      name: p.title,
+                      title: p.title,
                       qty: 1,
                     })
                   }
