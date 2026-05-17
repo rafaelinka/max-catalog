@@ -13,7 +13,11 @@ export async function sendToOperator(text: string) {
 
   const data = await res.text()
 
-  console.log("📤 MAX RESPONSE:", data)
+  console.log("📤 STATUS:", res.status)
+  console.log("📤 RESPONSE:", data)
 
-  return { ok: res.ok, data }
+  return {
+    ok: res.ok,
+    data,
+  }
 }
