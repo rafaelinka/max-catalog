@@ -13,9 +13,6 @@ export async function sendToOperator(chatId: number, text: string) {
 
   const data = await res.text()
 
-  console.log("📤 MAX STATUS:", res.status)
-  console.log("📤 MAX RESPONSE:", data)
-
   return {
     ok: res.ok,
     data,

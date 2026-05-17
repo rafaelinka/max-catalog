@@ -1,49 +1,34 @@
 import { NextResponse } from "next/server"
-import { buildOrderMessage } from "@/lib/buildOrderMessage"
 import { sendToOperator } from "@/lib/sendToOperator"
+import { buildOrderMessage } from "@/lib/buildOrderMessage"
 
 export async function POST(req: Request) {
   try {
     const body = await req.json()
 
-    // 🧠 собираем сообщение (может быть объект или строка)
-    const rawMessage = buildOrderMessage(body)
+    const items = Array.isArray(body.items) ? body.items : []
 
-    // 🔥 приводим к строке (ВАЖНО для MAX API)
-    const message =
-      typeof rawMessage === "string"
-        ? rawMessage
-        : JSON.stringify(rawMessage, null, 2)
+    if (!items.length) {
+      return NextResponse.json({ error: "empty cart" }, { status: 400 })
+    }
 
-    console.log("📦 ORDER MESSAGE:", message)
+    const message = buildOrderMessage(items)
 
-    // 🚀 отправка в MAX
-    const result = await sendToOperator(message)
+    const chatId = Number(process.env.MAX_OPERATOR_CHAT_ID)
 
-    console.log("📤 MAX RESULT:", result)
+    const result = await sendToOperator(chatId, message)
 
-    // ❌ если MAX не принял
     if (!result.ok) {
       return NextResponse.json(
-        {
-          error: "operator failed",
-          details: result.data,
-        },
+        { error: "MAX error", details: result.data },
         { status: 500 }
       )
     }
 
-    // ✅ успех
-    return NextResponse.json({
-      ok: true,
-    })
-  } catch (error) {
-    console.error("❌ ORDER ERROR:", error)
-
+    return NextResponse.json({ ok: true })
+  } catch (e) {
     return NextResponse.json(
-      {
-        error: "internal error",
-      },
+      { error: "internal error" },
       { status: 500 }
     )
   }

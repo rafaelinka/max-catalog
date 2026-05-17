@@ -1,1 +1,0 @@
-export const OPERATOR_PHONE = "+7 977 745-57-70"
