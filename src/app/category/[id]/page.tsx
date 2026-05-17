@@ -7,9 +7,21 @@ import { products } from "@/data/products"
 import { useCart } from "@/context/CartContext"
 
 const categories = [
-  { id: "meat", title: "Колбасы", icon: "🥩" },
-  { id: "cheese", title: "Сыры", icon: "🧀" },
-  { id: "milk", title: "Молочка", icon: "🥛" },
+  {
+    id: "meat",
+    title: "Колбасы",
+    icon: "🥩",
+  },
+  {
+    id: "cheese",
+    title: "Сыры",
+    icon: "🧀",
+  },
+  {
+    id: "milk",
+    title: "Молочка",
+    icon: "🥛",
+  },
 ]
 
 export default function CategoryPage({
@@ -19,8 +31,8 @@ export default function CategoryPage({
 }) {
   const { id } = use(params)
 
-  // ✅ ТОЛЬКО items (request убран полностью)
-  const { items, addItem, open } = useCart()
+  // ✅ только items + addItem
+  const { items, addItem } = useCart()
 
   const [search, setSearch] = useState("")
   const [activeSubcategory, setActiveSubcategory] =
@@ -29,10 +41,10 @@ export default function CategoryPage({
   /* =========================
      SUBCATEGORIES
   ========================= */
+
   const subcategories = useMemo(() => {
-    const list = products.filter(
-      (p) => p.category === id
-    )
+    const list = products.filter((p) => p.category === id)
+
     return Array.from(
       new Set(list.map((p) => p.subcategory))
     )
@@ -41,6 +53,7 @@ export default function CategoryPage({
   /* =========================
      FILTER PRODUCTS
   ========================= */
+
   const filtered = useMemo(() => {
     return products.filter((p) => {
       const matchCategory = p.category === id
@@ -66,7 +79,6 @@ export default function CategoryPage({
     })
   }, [id, search, activeSubcategory])
 
-  // ✅ корзина считается из items
   const totalQty = items.reduce(
     (a, i) => a + i.qty,
     0
@@ -76,11 +88,13 @@ export default function CategoryPage({
     <main className="min-h-screen bg-[var(--bg)]">
 
       {/* ================= TOPBAR ================= */}
+
       <section className="sticky top-0 z-50 bg-[var(--bg)] border-b border-[var(--border)]">
 
         <div className="max-w-md mx-auto px-4 pt-4 pb-4">
 
           {/* HEADER */}
+
           <div className="flex items-center justify-between">
 
             <Link
@@ -90,9 +104,9 @@ export default function CategoryPage({
               Петров Продукт
             </Link>
 
-            {/* CART BUTTON (КЛИКАБЕЛЬНЫЙ) */}
-            <button
-              onClick={open}
+            {/* CART ICON */}
+
+            <div
               className="
                 relative
                 w-11 h-11
@@ -107,22 +121,25 @@ export default function CategoryPage({
               </span>
 
               {totalQty > 0 && (
-                <div className="
-                  absolute -top-1 -right-1
-                  min-w-[18px] h-5 px-1
-                  rounded-full
-                  bg-[var(--accent)]
-                  text-white text-[10px]
-                  flex items-center justify-center
-                ">
+                <div
+                  className="
+                    absolute -top-1 -right-1
+                    min-w-[18px] h-5 px-1
+                    rounded-full
+                    bg-[var(--accent)]
+                    text-white text-[10px]
+                    flex items-center justify-center
+                  "
+                >
                   {totalQty}
                 </div>
               )}
-            </button>
+            </div>
 
           </div>
 
           {/* CATEGORIES */}
+
           <div className="mt-4 flex gap-2 overflow-x-auto scrollbar-none">
 
             {categories.map((cat) => {
@@ -136,7 +153,8 @@ export default function CategoryPage({
                     flex items-center gap-2
                     px-4 h-11
                     rounded-xl
-                    border shrink-0
+                    border
+                    shrink-0
 
                     ${
                       active
@@ -146,6 +164,7 @@ export default function CategoryPage({
                   `}
                 >
                   <span>{cat.icon}</span>
+
                   <span className="text-sm font-medium">
                     {cat.title}
                   </span>
@@ -156,6 +175,7 @@ export default function CategoryPage({
           </div>
 
           {/* SEARCH */}
+
           <div className="mt-4">
 
             <input
@@ -178,6 +198,7 @@ export default function CategoryPage({
           </div>
 
           {/* SUBCATEGORIES */}
+
           <div className="mt-4 flex gap-2 overflow-x-auto scrollbar-none">
 
             <button
@@ -224,6 +245,7 @@ export default function CategoryPage({
       </section>
 
       {/* ================= PRODUCTS ================= */}
+
       <section className="px-4 py-4">
 
         <div className="max-w-md mx-auto grid grid-cols-2 gap-3">
@@ -241,10 +263,12 @@ export default function CategoryPage({
             >
 
               <div className="aspect-square bg-gray-100">
+
                 <img
                   src={p.image}
                   className="w-full h-full object-cover"
                 />
+
               </div>
 
               <div className="p-3 flex flex-col flex-1">
@@ -258,15 +282,18 @@ export default function CategoryPage({
                 </p>
 
                 <div className="flex justify-between text-xs mt-2 text-[var(--text-secondary)]">
+
                   <span>{p.country}</span>
+
                   <span>{p.weight}</span>
+
                 </div>
 
                 <button
                   onClick={() =>
                     addItem({
-                      id: String(p.id),
-                      title: p.title,
+                      id: p.id,
+                      name: p.title,
                       qty: 1,
                     })
                   }
@@ -277,6 +304,7 @@ export default function CategoryPage({
                     bg-[var(--primary)]
                     text-white
                     text-sm font-medium
+                    mt-3
                   "
                 >
                   Добавить в заявку
