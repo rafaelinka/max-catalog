@@ -7,21 +7,9 @@ import { products } from "@/data/products"
 import { useCart } from "@/context/CartContext"
 
 const categories = [
-  {
-    id: "meat",
-    title: "Колбасы",
-    icon: "🥩",
-  },
-  {
-    id: "cheese",
-    title: "Сыры",
-    icon: "🧀",
-  },
-  {
-    id: "milk",
-    title: "Молочка",
-    icon: "🥛",
-  },
+  { id: "meat", title: "Колбасы", icon: "🥩" },
+  { id: "cheese", title: "Сыры", icon: "🧀" },
+  { id: "milk", title: "Молочка", icon: "🥛" },
 ]
 
 export default function CategoryPage({
@@ -31,11 +19,8 @@ export default function CategoryPage({
 }) {
   const { id } = use(params)
 
-  const {
-    request,
-    addItem,
-    open, // 🔥 важно
-  } = useCart()
+  // ❗ ТОЛЬКО addItem (остальное убрали из контекста)
+  const { addItem, items } = useCart()
 
   const [search, setSearch] = useState("")
   const [activeSubcategory, setActiveSubcategory] = useState("all")
@@ -68,7 +53,7 @@ export default function CategoryPage({
     })
   }, [id, search, activeSubcategory])
 
-  const totalQty = request.reduce((a, i) => a + i.qty, 0)
+  const totalQty = items.reduce((a, i) => a + i.qty, 0)
 
   return (
     <main className="min-h-screen bg-[var(--bg)]">
@@ -88,35 +73,16 @@ export default function CategoryPage({
               Петров Продукт
             </Link>
 
-            {/* REQUEST BUTTON */}
-            <button
-              onClick={open}
-              className="
-                relative
-                w-11 h-11
-                rounded-xl
-                bg-[var(--surface)]
-                border border-[var(--border)]
-                flex items-center justify-center
-              "
-            >
-              <span className="text-lg text-[var(--primary)]">
-                📦
-              </span>
+            {/* CART BUTTON (drawer теперь в AppShell) */}
+            <div className="relative w-11 h-11 rounded-xl bg-[var(--surface)] border border-[var(--border)] flex items-center justify-center">
+              <span className="text-lg">📦</span>
 
               {totalQty > 0 && (
-                <div className="
-                  absolute -top-1 -right-1
-                  min-w-[18px] h-5 px-1
-                  rounded-full
-                  bg-[var(--accent)]
-                  text-white text-[10px]
-                  flex items-center justify-center
-                ">
+                <div className="absolute -top-1 -right-1 min-w-[18px] h-5 px-1 rounded-full bg-[var(--accent)] text-white text-[10px] flex items-center justify-center">
                   {totalQty}
                 </div>
               )}
-            </button>
+            </div>
 
           </div>
 
@@ -131,12 +97,7 @@ export default function CategoryPage({
                   key={cat.id}
                   href={`/category/${cat.id}`}
                   className={`
-                    flex items-center gap-2
-                    px-4 h-11
-                    rounded-xl
-                    border
-                    shrink-0
-
+                    flex items-center gap-2 px-4 h-11 rounded-xl border shrink-0
                     ${
                       active
                         ? "bg-[var(--primary)] text-white border-[var(--primary)]"
@@ -156,22 +117,12 @@ export default function CategoryPage({
 
           {/* SEARCH */}
           <div className="mt-4">
-
             <input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Поиск товаров..."
-              className="
-                w-full h-12
-                rounded-xl
-                bg-[var(--surface)]
-                border border-[var(--border)]
-                px-4 text-sm
-                outline-none
-                text-[var(--text)]
-              "
+              className="w-full h-12 rounded-xl bg-[var(--surface)] border border-[var(--border)] px-4 text-sm outline-none text-[var(--text)]"
             />
-
           </div>
 
           {/* SUBCATEGORIES */}
@@ -179,15 +130,11 @@ export default function CategoryPage({
 
             <button
               onClick={() => setActiveSubcategory("all")}
-              className={`
-                px-4 h-9 rounded-full text-sm border shrink-0
-
-                ${
-                  activeSubcategory === "all"
-                    ? "bg-[var(--primary)] text-white border-[var(--primary)]"
-                    : "bg-[var(--surface)] text-[var(--text)] border-[var(--border)]"
-                }
-              `}
+              className={`px-4 h-9 rounded-full text-sm border shrink-0 ${
+                activeSubcategory === "all"
+                  ? "bg-[var(--primary)] text-white border-[var(--primary)]"
+                  : "bg-[var(--surface)] text-[var(--text)] border-[var(--border)]"
+              }`}
             >
               Все
             </button>
@@ -196,15 +143,11 @@ export default function CategoryPage({
               <button
                 key={sub}
                 onClick={() => setActiveSubcategory(sub)}
-                className={`
-                  px-4 h-9 rounded-full text-sm border shrink-0
-
-                  ${
-                    activeSubcategory === sub
-                      ? "bg-[var(--primary)] text-white border-[var(--primary)]"
-                      : "bg-[var(--surface)] text-[var(--text)] border-[var(--border)]"
-                  }
-                `}
+                className={`px-4 h-9 rounded-full text-sm border shrink-0 ${
+                  activeSubcategory === sub
+                    ? "bg-[var(--primary)] text-white border-[var(--primary)]"
+                    : "bg-[var(--surface)] text-[var(--text)] border-[var(--border)]"
+                }`}
               >
                 {sub}
               </button>
@@ -224,13 +167,7 @@ export default function CategoryPage({
           {filtered.map((p) => (
             <div
               key={p.id}
-              className="
-                bg-[var(--surface)]
-                border border-[var(--border)]
-                rounded-2xl
-                overflow-hidden
-                flex flex-col
-              "
+              className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl overflow-hidden flex flex-col"
             >
 
               <div className="aspect-square bg-gray-100">
@@ -256,16 +193,14 @@ export default function CategoryPage({
                 </div>
 
                 <button
-                  onClick={() => addItem(p, 1)}
-                  className="
-                    mt-auto
-                    h-10
-                    rounded-xl
-                    bg-[var(--primary)]
-                    text-white
-                    text-sm font-medium
-                    mt-3
-                  "
+                  onClick={() =>
+                    addItem({
+                      id: p.id,
+                      name: p.title,
+                      qty: 1,
+                    })
+                  }
+                  className="mt-auto h-10 rounded-xl bg-[var(--primary)] text-white text-sm font-medium mt-3"
                 >
                   Добавить в заявку
                 </button>
