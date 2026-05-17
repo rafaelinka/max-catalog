@@ -6,24 +6,44 @@ export async function POST(req: Request) {
   try {
     const body = await req.json()
 
-    const message = buildOrderMessage(body)
+    // 🧠 собираем сообщение (может быть объект или строка)
+    const rawMessage = buildOrderMessage(body)
 
+    // 🔥 приводим к строке (ВАЖНО для MAX API)
+    const message =
+      typeof rawMessage === "string"
+        ? rawMessage
+        : JSON.stringify(rawMessage, null, 2)
+
+    console.log("📦 ORDER MESSAGE:", message)
+
+    // 🚀 отправка в MAX
     const result = await sendToOperator(message)
 
-    // ✅ ВАЖНО: используем ok, а не success
+    console.log("📤 MAX RESULT:", result)
+
+    // ❌ если MAX не принял
     if (!result.ok) {
       return NextResponse.json(
-        { error: "operator failed" },
+        {
+          error: "operator failed",
+          details: result.data,
+        },
         { status: 500 }
       )
     }
 
-    return NextResponse.json({ ok: true })
+    // ✅ успех
+    return NextResponse.json({
+      ok: true,
+    })
   } catch (error) {
-    console.error("ORDER ERROR:", error)
+    console.error("❌ ORDER ERROR:", error)
 
     return NextResponse.json(
-      { error: "internal error" },
+      {
+        error: "internal error",
+      },
       { status: 500 }
     )
   }
