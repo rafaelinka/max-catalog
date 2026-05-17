@@ -4,23 +4,21 @@ import { useState } from "react"
 import { useCart } from "@/context/CartContext"
 
 export default function CartBar() {
-  const { request, clear } = useCart()
+  const { items, clearCart } = useCart()
   const [loading, setLoading] = useState(false)
 
-  const totalQty = request.reduce((s, p) => s + p.qty, 0)
+  const totalQty = items.reduce((s, p) => s + p.qty, 0)
 
-  if (request.length === 0) return null
+  if (items.length === 0) return null
 
   const buildMessage = () => {
-    return request
+    return items
       .map((p, i) => `${i + 1}. ${p.name} × ${p.qty}`)
       .join("\n")
   }
 
   const sendOrder = async () => {
     setLoading(true)
-
-    const message = buildMessage()
 
     try {
       const res = await fetch("/api/order", {
@@ -29,19 +27,17 @@ export default function CartBar() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          items: request,
+          items,
           totalQty,
-          message,
+          message: buildMessage(),
         }),
       })
 
-      if (!res.ok) {
-        throw new Error("Failed")
-      }
+      if (!res.ok) throw new Error()
 
-      clear()
+      clearCart()
 
-      alert("Заявка отправлена оператору")
+      alert("Заявка отправлена")
     } catch (e) {
       alert("Ошибка отправки заявки")
     } finally {
@@ -53,22 +49,20 @@ export default function CartBar() {
     <div className="fixed bottom-0 left-0 right-0 z-50 p-3">
       <div className="max-w-md mx-auto bg-white border shadow-lg rounded-xl flex items-center justify-between p-3">
 
-        {/* INFO */}
         <div>
           <div className="text-sm font-semibold">
             Заявка: {totalQty} товаров
           </div>
 
           <div className="text-xs text-gray-500">
-            Позиций: {request.length}
+            Позиций: {items.length}
           </div>
         </div>
 
-        {/* ACTIONS */}
         <div className="flex gap-2">
 
           <button
-            onClick={() => clear()}
+            onClick={() => clearCart()}
             className="px-3 py-2 text-xs border rounded-lg"
           >
             Очистить
