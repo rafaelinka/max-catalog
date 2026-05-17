@@ -2,79 +2,162 @@
 
 import { useState } from "react"
 import { useCart } from "@/context/CartContext"
-import { sendToOperator } from "@/lib/max/sendToOperator"
 
-export default function RequestDrawer({ open, onClose }: any) {
-  const { items, clearCart } = useCart()
+export default function RequestDrawer() {
+  const {
+    request,
+    removeItem,
+    clear,
+    isOpen,
+    close,
+  } = useCart()
+
   const [loading, setLoading] = useState(false)
-  const [sent, setSent] = useState(false)
+  const [success, setSuccess] = useState<null | string>(null)
 
-  const totalItems = items.reduce((sum, i) => sum + i.qty, 0)
+  if (!isOpen) return null
 
-  async function handleSend() {
+  const totalQty = request.reduce((a, i) => a + i.qty, 0)
+
+  /* =========================
+     SEND ORDER
+  ========================= */
+  const sendOrder = async () => {
     setLoading(true)
 
-    const message = `
-🧾 НОВАЯ ЗАЯВКА
+    try {
+      const res = await fetch("/api/order", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ request }),
+      })
 
-📦 Товары:
-${items.map(i => `- ${i.title} ×${i.qty}`).join("\n")}
+      const data = await res.json()
 
-📊 Кол-во позиций: ${totalItems}
+      if (data.success) {
+        setSuccess(data.orderId)
 
-📲 Источник: max-catalog
-`
+        // очищаем заявку
+        clear()
 
-    const res = await sendToOperator(message)
+        // закрываем через паузу
+        setTimeout(() => {
+          setSuccess(null)
+          close()
+        }, 2000)
+      } else {
+        alert("Ошибка отправки заявки")
+      }
+    } catch (e) {
+      alert("Ошибка сети")
+    }
 
     setLoading(false)
-
-    if (res.ok) {
-      setSent(true)
-      clearCart()
-    }
   }
 
-  if (!open) return null
-
   return (
-    <div className="fixed inset-0 bg-black/40 flex items-end justify-center z-50">
-      <div className="w-full max-w-md bg-white rounded-t-2xl p-4">
-        
-        {/* HEADER */}
-        <div className="flex justify-between items-center mb-3">
-          <h2 className="text-lg font-semibold">Заявка</h2>
-          <button onClick={onClose}>✕</button>
-        </div>
+    <div className="fixed inset-0 z-50">
 
-        {/* CONTENT */}
-        {sent ? (
-          <div className="text-center py-10">
-            <p className="text-green-600 font-semibold">
+      {/* BACKDROP */}
+      <div
+        className="absolute inset-0 bg-black/40"
+        onClick={close}
+      />
+
+      {/* PANEL */}
+      <div className="
+        absolute bottom-0 left-0 right-0
+        max-w-md mx-auto
+        bg-[var(--surface)]
+        border-t border-[var(--border)]
+        rounded-t-2xl
+        p-4
+      ">
+
+        {/* =========================
+            SUCCESS STATE
+        ========================= */}
+        {success ? (
+          <div className="py-10 text-center">
+
+            <div className="text-[var(--primary)] font-semibold text-lg">
               Заявка отправлена
-            </p>
+            </div>
+
+            <div className="text-sm text-gray-500 mt-2">
+              ID: {success}
+            </div>
+
           </div>
         ) : (
           <>
-            <div className="space-y-2 max-h-64 overflow-auto">
-              {items.map((i, idx) => (
-                <div key={idx} className="flex justify-between text-sm">
-                  <span>{i.title}</span>
-                  <span>x{i.qty}</span>
-                </div>
-              ))}
+            {/* HEADER */}
+            <div className="mb-3">
+              <div className="text-[var(--primary)] font-semibold">
+                Заявка
+              </div>
+
+              <div className="text-xs text-gray-500">
+                Позиции: {totalQty}
+              </div>
             </div>
 
-            {/* BUTTON */}
+            {/* ITEMS */}
+            <div className="space-y-2 max-h-60 overflow-y-auto">
+
+              {request.map((item) => (
+                <div
+                  key={item.id}
+                  className="
+                    flex justify-between
+                    items-center
+                    p-2
+                    border border-[var(--border)]
+                    rounded-xl
+                  "
+                >
+                  <div>
+                    <div className="text-sm font-medium">
+                      {item.title}
+                    </div>
+                    <div className="text-xs text-gray-500">
+                      x{item.qty}
+                    </div>
+                  </div>
+
+                  <button
+                    onClick={() => removeItem(item.id)}
+                    className="text-xs text-red-500"
+                  >
+                    удалить
+                  </button>
+                </div>
+              ))}
+
+            </div>
+
+            {/* ACTIONS */}
             <button
-              onClick={handleSend}
-              disabled={loading || items.length === 0}
-              className="w-full mt-4 bg-[#0B1F3A] text-white py-2 rounded"
+              onClick={sendOrder}
+              disabled={loading || request.length === 0}
+              className="
+                mt-3 w-full h-11
+                bg-[var(--primary)]
+                text-white
+                rounded-xl
+                font-medium
+                disabled:opacity-50
+              "
             >
-              {loading ? "Отправка..." : "Отправить заявку"}
+              {loading
+                ? "Отправка..."
+                : "Отправить оператору"}
             </button>
           </>
         )}
+
       </div>
     </div>
   )
