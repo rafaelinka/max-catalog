@@ -4,37 +4,26 @@ import { sendToOperator } from "@/lib/sendToOperator"
 
 export async function POST(req: Request) {
   try {
-    const { request } = await req.json()
+    const body = await req.json()
 
-    if (!request?.length) {
-      return NextResponse.json(
-        { error: "empty request" },
-        { status: 400 }
-      )
-    }
+    const message = buildOrderMessage(body)
 
-    // 📦 формируем ERP заявку
-    const { message, orderId } =
-      buildOrderMessage(request)
-
-    // 📤 отправляем оператору
     const result = await sendToOperator(message)
 
-    if (!result.success) {
+    // ✅ ВАЖНО: используем ok, а не success
+    if (!result.ok) {
       return NextResponse.json(
         { error: "operator failed" },
         { status: 500 }
       )
     }
 
-    return NextResponse.json({
-      success: true,
-      orderId,
-      operator: "MAX_READY",
-    })
-  } catch (e) {
+    return NextResponse.json({ ok: true })
+  } catch (error) {
+    console.error("ORDER ERROR:", error)
+
     return NextResponse.json(
-      { error: "server error" },
+      { error: "internal error" },
       { status: 500 }
     )
   }
