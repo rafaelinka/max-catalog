@@ -38,7 +38,7 @@ export default function RequestDrawer({ open, onClose }: Props) {
       console.log("📤 ORDER RESPONSE:", data)
 
       if (!res.ok) {
-        throw new Error(data?.error || "Failed to send order")
+        throw new Error(data?.error || "Ошибка отправки заявки")
       }
 
       setSent(true)
@@ -47,10 +47,10 @@ export default function RequestDrawer({ open, onClose }: Props) {
       setTimeout(() => {
         setSent(false)
         onClose()
-      }, 1500)
+      }, 1200)
     } catch (e: any) {
-      console.error(e)
-      setError(e.message || "Ошибка отправки")
+      console.error("DRAWER ERROR:", e)
+      setError(e.message || "Ошибка")
     } finally {
       setLoading(false)
     }
@@ -60,10 +60,11 @@ export default function RequestDrawer({ open, onClose }: Props) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-end bg-black/40">
-      <div className="w-full bg-white rounded-t-2xl p-4 shadow-lg">
+      <div className="w-full bg-white rounded-t-2xl p-4 shadow-xl">
+
         {/* HEADER */}
         <div className="flex justify-between items-center mb-3">
-          <h2 className="text-lg font-semibold">
+          <h2 className="text-[16px] font-semibold text-[#0B1F3A]">
             Оформление заявки
           </h2>
 
@@ -72,20 +73,20 @@ export default function RequestDrawer({ open, onClose }: Props) {
           </button>
         </div>
 
-        {/* CONTENT */}
+        {/* ITEMS */}
         <div className="max-h-[300px] overflow-y-auto mb-3">
           {items.length === 0 ? (
-            <p className="text-gray-500 text-sm">
+            <p className="text-sm text-gray-500">
               Корзина пуста
             </p>
           ) : (
             items.map((item: any, idx: number) => (
               <div
                 key={idx}
-                className="flex justify-between border-b py-2 text-sm"
+                className="flex justify-between py-2 border-b text-sm"
               >
                 <span>{item.name}</span>
-                <span>x{item.qty}</span>
+                <span className="text-gray-600">x{item.qty}</span>
               </div>
             ))
           )}
@@ -105,7 +106,7 @@ export default function RequestDrawer({ open, onClose }: Props) {
           </div>
         )}
 
-        {/* ACTION */}
+        {/* BUTTON */}
         <button
           onClick={handleSend}
           disabled={loading || items.length === 0}

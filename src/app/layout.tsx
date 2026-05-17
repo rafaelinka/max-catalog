@@ -1,6 +1,5 @@
 import "./globals.css"
-import { CartProvider } from "@/context/CartContext"
-import RequestDrawer from "@/components/RequestDrawer"
+import AppShell from "@/components/AppShell"
 
 export default function RootLayout({
   children,
@@ -10,20 +9,7 @@ export default function RootLayout({
   return (
     <html lang="ru">
       <body>
-
-        {/* =========================
-            ERP REQUEST SYSTEM
-        ========================= */}
-        <CartProvider>
-
-          {/* APP CONTENT */}
-          {children}
-
-          {/* GLOBAL DRAWER (opens only via button) */}
-          <RequestDrawer />
-
-        </CartProvider>
-
+        <AppShell>{children}</AppShell>
       </body>
     </html>
   )

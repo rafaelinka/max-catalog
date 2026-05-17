@@ -1,88 +1,56 @@
 "use client"
 
-import { createContext, useContext, useState } from "react"
+import { createContext, useContext, useState, ReactNode } from "react"
 
-export type CartItem = {
-  id: number
-  title: string
-  brand: string
-  category: string
-  subcategory: string
-  country: string
-  weight: string
-  image: string
-  url: string
+type CartItem = {
+  id: string
+  name: string
   qty: number
 }
 
 type CartContextType = {
-  request: CartItem[]
-  addItem: (item: Omit<CartItem, "qty">, qty?: number) => void
-  removeItem: (id: number) => void
-  clear: () => void
-
-  // 🔥 NEW: drawer control
-  isOpen: boolean
-  open: () => void
-  close: () => void
+  items: CartItem[]
+  addItem: (item: CartItem) => void
+  removeItem: (id: string) => void
+  clearCart: () => void
 }
 
-const CartContext = createContext<CartContextType | undefined>(undefined)
+const CartContext = createContext<CartContextType | null>(null)
 
-export function CartProvider({
-  children,
-}: {
-  children: React.ReactNode
-}) {
-  const [request, setRequest] = useState<CartItem[]>([])
-  const [isOpen, setIsOpen] = useState(false)
+export function CartProvider({ children }: { children: ReactNode }) {
+  const [items, setItems] = useState<CartItem[]>([])
 
-  /* =========================
-     ADD ITEM
-  ========================= */
-  const addItem = (
-    item: Omit<CartItem, "qty">,
-    qty: number = 1
-  ) => {
-    setRequest((prev) => {
-      const existing = prev.find((p) => p.id === item.id)
+  function addItem(item: CartItem) {
+    setItems((prev) => {
+      const existing = prev.find((i) => i.id === item.id)
 
       if (existing) {
-        return prev.map((p) =>
-          p.id === item.id
-            ? { ...p, qty: p.qty + qty }
-            : p
+        return prev.map((i) =>
+          i.id === item.id
+            ? { ...i, qty: i.qty + item.qty }
+            : i
         )
       }
 
-      return [...prev, { ...item, qty }]
+      return [...prev, item]
     })
   }
 
-  const removeItem = (id: number) => {
-    setRequest((prev) =>
-      prev.filter((item) => item.id !== id)
-    )
+  function removeItem(id: string) {
+    setItems((prev) => prev.filter((i) => i.id !== id))
   }
 
-  const clear = () => setRequest([])
-
-  /* =========================
-     DRAWER CONTROL
-  ========================= */
-  const open = () => setIsOpen(true)
-  const close = () => setIsOpen(false)
+  function clearCart() {
+    setItems([])
+  }
 
   return (
     <CartContext.Provider
       value={{
-        request,
+        items,
         addItem,
         removeItem,
-        clear,
-        isOpen,
-        open,
-        close,
+        clearCart,
       }}
     >
       {children}
@@ -92,7 +60,10 @@ export function CartProvider({
 
 export function useCart() {
   const ctx = useContext(CartContext)
-  if (!ctx)
+
+  if (!ctx) {
     throw new Error("useCart must be used inside CartProvider")
+  }
+
   return ctx
 }
