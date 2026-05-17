@@ -9,23 +9,22 @@ import {
 
 export type CartItem = {
   id: string
-  name: string
+  title: string
   qty: number
 }
 
 type CartContextType = {
   items: CartItem[]
-
   addItem: (item: CartItem) => void
   removeItem: (id: string) => void
-  clearCart: () => void
-
-  isOpen: boolean
+  clear: () => void
   open: () => void
   close: () => void
+  isOpen: boolean
 }
 
-const CartContext = createContext<CartContextType | null>(null)
+const CartContext =
+  createContext<CartContextType | null>(null)
 
 export function CartProvider({
   children,
@@ -35,20 +34,16 @@ export function CartProvider({
   const [items, setItems] = useState<CartItem[]>([])
   const [isOpen, setIsOpen] = useState(false)
 
-  /* =========================
-     ADD ITEM
-  ========================= */
   function addItem(item: CartItem) {
     setItems((prev) => {
-      const existing = prev.find((i) => i.id === item.id)
+      const existing = prev.find(
+        (i) => i.id === item.id
+      )
 
       if (existing) {
         return prev.map((i) =>
           i.id === item.id
-            ? {
-                ...i,
-                qty: i.qty + item.qty,
-              }
+            ? { ...i, qty: i.qty + item.qty }
             : i
         )
       }
@@ -57,45 +52,26 @@ export function CartProvider({
     })
   }
 
-  /* =========================
-     REMOVE
-  ========================= */
   function removeItem(id: string) {
     setItems((prev) =>
       prev.filter((i) => i.id !== id)
     )
   }
 
-  /* =========================
-     CLEAR
-  ========================= */
-  function clearCart() {
+  function clear() {
     setItems([])
-  }
-
-  /* =========================
-     DRAWER
-  ========================= */
-  function open() {
-    setIsOpen(true)
-  }
-
-  function close() {
-    setIsOpen(false)
   }
 
   return (
     <CartContext.Provider
       value={{
         items,
-
         addItem,
         removeItem,
-        clearCart,
-
+        clear,
+        open: () => setIsOpen(true),
+        close: () => setIsOpen(false),
         isOpen,
-        open,
-        close,
       }}
     >
       {children}
@@ -105,12 +81,7 @@ export function CartProvider({
 
 export function useCart() {
   const ctx = useContext(CartContext)
-
-  if (!ctx) {
-    throw new Error(
-      "useCart must be used inside CartProvider"
-    )
-  }
-
+  if (!ctx)
+    throw new Error("CartProvider missing")
   return ctx
 }

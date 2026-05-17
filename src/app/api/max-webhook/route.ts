@@ -4,54 +4,40 @@ import { sendToOperator } from "@/lib/sendToOperator"
 
 export async function POST(req: Request) {
   try {
-    console.log("📥 ORDER REQUEST START")
-
     const body = await req.json()
 
-    console.log("📦 BODY:", body)
+    const items = Array.isArray(body.items)
+      ? body.items
+      : []
 
-    const rawMessage = buildOrderMessage(body)
+    const safeBody = {
+      ...body,
+      items,
+    }
 
-    console.log("🧠 RAW MESSAGE:", rawMessage)
+    const rawMessage =
+      buildOrderMessage(safeBody)
 
     const message =
       typeof rawMessage === "string"
         ? rawMessage
-        : JSON.stringify(rawMessage, null, 2)
+        : JSON.stringify(rawMessage)
 
-    console.log("📨 FINAL MESSAGE:", message)
-
-    const result = await sendToOperator(message)
-
-    console.log("📤 SEND RESULT:", result)
+    const result =
+      await sendToOperator(message)
 
     if (!result.ok) {
       return NextResponse.json(
-        {
-          error: "MAX API ERROR",
-          details: result.data,
-        },
-        {
-          status: 500,
-        }
+        { error: "operator failed" },
+        { status: 500 }
       )
     }
 
-    return NextResponse.json({
-      ok: true,
-    })
-  } catch (error: any) {
-    console.error("❌ FULL ORDER ERROR:")
-    console.error(error)
-
+    return NextResponse.json({ ok: true })
+  } catch (e) {
     return NextResponse.json(
-      {
-        error: "internal error",
-        details: String(error),
-      },
-      {
-        status: 500,
-      }
+      { error: "internal error" },
+      { status: 500 }
     )
   }
 }
