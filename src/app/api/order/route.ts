@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server"
-import { OPERATOR_PHONE } from "@/config/operator"
 import { buildOrderMessage } from "@/lib/buildOrderMessage"
+import { sendToOperator } from "@/lib/sendToOperator"
 
 export async function POST(req: Request) {
   try {
@@ -13,19 +13,24 @@ export async function POST(req: Request) {
       )
     }
 
+    // 📦 формируем ERP заявку
     const { message, orderId } =
       buildOrderMessage(request)
 
-    // 🔥 лог (пока вместо MAX)
-    console.log("==============")
-    console.log("ORDER:", orderId)
-    console.log("TO:", OPERATOR_PHONE)
-    console.log(message)
-    console.log("==============")
+    // 📤 отправляем оператору
+    const result = await sendToOperator(message)
+
+    if (!result.success) {
+      return NextResponse.json(
+        { error: "operator failed" },
+        { status: 500 }
+      )
+    }
 
     return NextResponse.json({
       success: true,
       orderId,
+      operator: "MAX_READY",
     })
   } catch (e) {
     return NextResponse.json(
